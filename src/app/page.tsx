@@ -90,7 +90,7 @@ export default function Home() {
               </button>
             </div>
             
-            {savedGoal && <TaskList user={user} />}
+            {savedGoal && <TaskList user={user} mainGoal={savedGoal} />}
 
           </div>
         ) : (
