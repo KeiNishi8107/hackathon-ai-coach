@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { db } from "@/lib/firebase/client";
 import {
   collection,
@@ -32,7 +32,7 @@ interface Task {
 
 interface TaskListProps {
   user: User;
-  mainGoal: { id: string; text: string } | null;
+  mainGoal: { id: string; text: string };
 }
 
 export default function TaskList({ user, mainGoal }: TaskListProps) {
@@ -52,20 +52,14 @@ export default function TaskList({ user, mainGoal }: TaskListProps) {
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiSuggestedTasks, setAiSuggestedTasks] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [aiResponse, setAiResponse] = useState('');
 
   // フィルタリングとソートの状態
   const [filterPriority, setFilterPriority] = useState<'すべて' | '高' | '中' | '低'>('すべて');
   const [sortBy, setSortBy] = useState<'order' | 'dueDate'>('order');
 
-  // mainGoalが存在しない場合は何もレンダリングしない
-  if (!mainGoal) {
-    return null;
-  }
-
   // Firestoreからタスクを取得 (リアルタイム更新)
   useEffect(() => {
-    if (!authUser || !mainGoal.id) return;
+    if (!authUser) return;
     setLoading(true);
     const tasksColRef = collection(db, "users", authUser.uid, "goals", mainGoal.id, "tasks");
     const q = query(tasksColRef, orderBy("order", "asc"));
@@ -120,6 +114,11 @@ export default function TaskList({ user, mainGoal }: TaskListProps) {
 
     return processedTasks;
   }, [tasks, filterPriority, sortBy]);
+
+  // mainGoalが存在しない場合は何もレンダリングしない
+  // if (!mainGoal) {
+  //   return null;
+  // }
 
   // 新しいタスクを追加
   const handleAddTask = async (e: React.FormEvent) => {
@@ -225,8 +224,7 @@ export default function TaskList({ user, mainGoal }: TaskListProps) {
     setIsLoadingAI(true);
     setAiError(null);
     setError('');
-    setAiResponse('');
-
+    
     const currentTasks = tasks.map(t => ({
       text: t.text,
       completed: t.completed,
@@ -360,7 +358,7 @@ export default function TaskList({ user, mainGoal }: TaskListProps) {
                     <select
                     id="filter-priority"
                     value={filterPriority}
-                    onChange={(e) => setFilterPriority(e.target.value as any)}
+                    onChange={(e) => setFilterPriority(e.target.value as typeof filterPriority)}
                     className="p-2 border border-slate-300 rounded-md text-sm text-gray-900 focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="すべて">すべて</option>
@@ -374,7 +372,7 @@ export default function TaskList({ user, mainGoal }: TaskListProps) {
                     <select
                     id="sort-by"
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as any)}
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                     className="p-2 border border-slate-300 rounded-md text-sm text-gray-900 focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="order">カスタム</option>
@@ -439,6 +437,7 @@ export default function TaskList({ user, mainGoal }: TaskListProps) {
                                             <button
                                             onClick={() => handleDeleteTask(task.id)}
                                             className="text-gray-500 hover:text-red-600 transition-colors"
+                                            aria-label="タスクを削除"
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" />
@@ -461,6 +460,7 @@ export default function TaskList({ user, mainGoal }: TaskListProps) {
         <div className="mt-8 pt-6 border-t border-gray-200">
             <h4 className="text-lg font-semibold text-gray-700 mb-2">行き詰まりましたか？</h4>
             <p className="text-gray-600 mb-4">AIコーチがあなたの状況を分析し、新しい計画を提案します。</p>
+            {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
             <button
             onClick={handleGeneratePlan}
             disabled={isLoadingAI}
