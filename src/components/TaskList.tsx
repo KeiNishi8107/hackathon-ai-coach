@@ -14,7 +14,6 @@ import {
   orderBy,
   writeBatch,
 } from "firebase/firestore";
-import type { User } from "firebase/auth";
 import { useAuth } from "@/contexts/AuthContext";
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { ClipLoader } from "react-spinners";
@@ -31,11 +30,10 @@ interface Task {
 }
 
 interface TaskListProps {
-  user: User;
   mainGoal: { id: string; text: string };
 }
 
-export default function TaskList({ user, mainGoal }: TaskListProps) {
+export default function TaskList({ mainGoal }: TaskListProps) {
   const { user: authUser } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState({

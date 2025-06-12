@@ -70,12 +70,12 @@ export default function Home() {
           <div className="mt-8 max-w-2xl mx-auto">
             <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">AIコーチング＆タスク管理</h1>
             {mainGoal ? (
-              <div>
-                <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-                  <h2 className="text-2xl font-bold text-gray-700 mb-2">メインゴール</h2>
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                <div className="mb-4">
+                  <h2 className="text-xl font-bold text-gray-800">メインゴール</h2>
                   <p className="text-gray-600 text-lg">{mainGoal.text}</p>
                 </div>
-                <TaskList mainGoal={mainGoal} user={user} />
+                <TaskList mainGoal={mainGoal} />
               </div>
             ) : (
               <div className="bg-white p-6 rounded-lg shadow-lg">
